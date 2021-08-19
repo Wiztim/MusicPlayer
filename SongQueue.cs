@@ -63,5 +63,10 @@ namespace MusicPlayer
             currentIndex = songList.IndexOf(songName);
             return songList[currentIndex];
         }
+
+        public int GetCurrentIndex()
+        {
+            return currentIndex;
+        }
     }
 }

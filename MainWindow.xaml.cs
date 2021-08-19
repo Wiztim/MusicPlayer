@@ -31,18 +31,12 @@ namespace MusicPlayer
             InitializeComponent();
             PopulateSongList();
             DisplaySongList();
+            UpdateStatusBarProgress();
             songQueue.ImportSongList(songList);
             MusicElement.Source = songQueue.GetCurrentSong();
-
-            MusicElement.LoadedBehavior = MediaState.Manual;
-            MusicElement.UnloadedBehavior = MediaState.Stop;
             MusicElement.Volume = 0.10;
         }
 
-        private async void MusicElement_Loaded(object sender, RoutedEventArgs e)
-        {
-            await UpdateStatusBarProgress();
-        }
 
         private void PopulateSongList()
         {
@@ -102,8 +96,8 @@ namespace MusicPlayer
                 MusicElement.Stop();
                 MusicElement.Play();
             }
-            MusicElement.Source = nextSong;
-            TimelineSlider.Value = 0;
+
+            PlayNewSong(nextSong);
         }
 
         private void BackButton_Click(object sender, RoutedEventArgs e)
@@ -120,7 +114,7 @@ namespace MusicPlayer
 
         private void VolumeSlider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
         {
-            MusicElement.Volume = (double)VolumeSlider.Value;
+            MusicElement.Volume = (double)VolumeSlider.Value / 100;
         }
 
         private void TimelineSlider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
@@ -163,15 +157,14 @@ namespace MusicPlayer
             Uri songUri = new Uri(SONG_DIRECTORY + SongListDisplay.SelectedItem.ToString() + ".wav");
             if (songList.Contains(songUri))
             {
-                MusicElement.Source = songQueue.PlaySpecificSong(songUri);
+
             } else
             {
                 songUri = new Uri(SONG_DIRECTORY + SongListDisplay.SelectedItem.ToString() + ".mp3");
-                MusicElement.Source = songQueue.PlaySpecificSong(songUri);
+                
             }
-            
-            MusicElement.Play();
-            TimelineSlider.Value = 0;
+
+            PlayNewSong(songQueue.PlaySpecificSong(songUri));
         }
 
         public async Task UpdateStatusBarProgress()
@@ -184,6 +177,15 @@ namespace MusicPlayer
 
             TimelineSlider.Value = 100 * MusicElement.Position / MusicElement.NaturalDuration.TimeSpan;
             await UpdateStatusBarProgress();
+        }
+
+        private void PlayNewSong(Uri songUri)
+        {
+            MusicElement.Source = songUri;
+            MusicElement.Play();
+            TimelineSlider.Value = 0;
+            SongListDisplay.SelectedItem = SongListDisplay.Items.GetItemAt(songQueue.GetCurrentIndex());
+            SongListDisplay.ScrollIntoView(SongListDisplay.Items.GetItemAt(songQueue.GetCurrentIndex()));
         }
     }
 }
