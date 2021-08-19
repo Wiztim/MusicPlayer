@@ -57,7 +57,11 @@ namespace MusicPlayer
         {
             repeatMode = mode;
         }
+
+        public Uri PlaySpecificSong(Uri songName)
+        {
+            currentIndex = songList.IndexOf(songName);
+            return songList[currentIndex];
+        }
     }
-
-
 }

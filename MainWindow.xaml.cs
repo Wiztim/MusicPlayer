@@ -25,11 +25,12 @@ namespace MusicPlayer
         SongQueue songQueue = new SongQueue();
         List<Uri> songList = new();
         string[] validFileExtentions = { ".wav", ".mp3" };
-        const string SONG_DIRECTORY = @"D:\Steam\steamapps\common\LobotomyCorp\OST";
+        const string SONG_DIRECTORY = @"D:\Steam\steamapps\common\LobotomyCorp\OST\";
         public MainWindow()
         {
             InitializeComponent();
             PopulateSongList();
+            DisplaySongList();
             songQueue.ImportSongList(songList);
             MusicElement.Source = songQueue.GetCurrentSong();
 
@@ -38,9 +39,9 @@ namespace MusicPlayer
             MusicElement.Volume = 0.10;
         }
 
-        private void MusicElement_Loaded(object sender, RoutedEventArgs e)
+        private async void MusicElement_Loaded(object sender, RoutedEventArgs e)
         {
-
+            await UpdateStatusBarProgress();
         }
 
         private void PopulateSongList()
@@ -48,7 +49,19 @@ namespace MusicPlayer
             string[] files = Directory.GetFiles(SONG_DIRECTORY);
             songList.AddRange(files
                 .Where(file => IsValidFileExtension(file))
-                .Select(file => new Uri(file)));
+                .Select(file => new Uri(file)));         
+        }
+
+        private void DisplaySongList()
+        {
+            List<string> songStringList = new();
+            foreach (Uri song in songList)
+            {
+                string[] songString = song.OriginalString.Split("\\");
+                songStringList.Add(songString[songString.Length - 1].Substring(0, songString[songString.Length - 1].Length - 4));
+            }
+
+            SongListDisplay.ItemsSource = songStringList;
         }
 
         private bool IsValidFileExtension(string file)
@@ -90,17 +103,21 @@ namespace MusicPlayer
                 MusicElement.Play();
             }
             MusicElement.Source = nextSong;
+            TimelineSlider.Value = 0;
         }
 
         private void BackButton_Click(object sender, RoutedEventArgs e)
         {
             MusicElement.Stop();
             MusicElement.Play();
+            TimelineSlider.Value = 0;
         }
+
         private void BackButton_MouseDoubleClick(object sender, MouseButtonEventArgs e)
         {
             MusicElement.Source = songQueue.GetPreviousSong();
         }
+
         private void VolumeSlider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
         {
             MusicElement.Volume = (double)VolumeSlider.Value;
@@ -113,7 +130,7 @@ namespace MusicPlayer
                 return;
             }
 
-            double seekTime = TimelineSlider.Value / 10 * MusicElement.NaturalDuration.TimeSpan.TotalMilliseconds;
+            double seekTime = TimelineSlider.Value / 100 * MusicElement.NaturalDuration.TimeSpan.TotalMilliseconds;
 
             // Overloaded constructor takes the arguments days, hours, minutes, seconds, milliseconds.
             // Create a TimeSpan with miliseconds equal to the slider value.
@@ -139,6 +156,34 @@ namespace MusicPlayer
             songQueue.SetRepeatMode(mode);
             
         }
-    }
 
+        private void SongListDisplay_MouseDoubleClick(object sender, MouseButtonEventArgs e)
+        {
+            PlayButton.Content = "Pause";
+            Uri songUri = new Uri(SONG_DIRECTORY + SongListDisplay.SelectedItem.ToString() + ".wav");
+            if (songList.Contains(songUri))
+            {
+                MusicElement.Source = songQueue.PlaySpecificSong(songUri);
+            } else
+            {
+                songUri = new Uri(SONG_DIRECTORY + SongListDisplay.SelectedItem.ToString() + ".mp3");
+                MusicElement.Source = songQueue.PlaySpecificSong(songUri);
+            }
+            
+            MusicElement.Play();
+            TimelineSlider.Value = 0;
+        }
+
+        public async Task UpdateStatusBarProgress()
+        {
+            await Task.Delay(500);
+            if (!MusicElement.NaturalDuration.HasTimeSpan)
+            {
+                await UpdateStatusBarProgress(); ;
+            }
+
+            TimelineSlider.Value = 100 * MusicElement.Position / MusicElement.NaturalDuration.TimeSpan;
+            await UpdateStatusBarProgress();
+        }
+    }
 }
