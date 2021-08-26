@@ -2,17 +2,10 @@
 using System.IO;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
 using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 using MusicPlayer.Enums;
 
 namespace MusicPlayer
@@ -22,19 +15,17 @@ namespace MusicPlayer
     /// </summary>
     public partial class MainWindow : Window
     {
-        SongQueue songQueue = new SongQueue();
-        List<Uri> songList = new();
-        string[] validFileExtentions = { ".wav", ".mp3" };
-        const string SONG_DIRECTORY = @"D:\Steam\steamapps\common\LobotomyCorp\OST\";
+        private readonly SongQueue songQueue = new SongQueue();
+        private List<Uri> songList = new();
+        private readonly string[] validFileExtentions = { ".wav", ".mp3" };
+        private const string SONG_DIRECTORY = @"C:\Users\Tim Orlov\Desktop\2hu\Songs\List\";
         public MainWindow()
         {
             InitializeComponent();
             PopulateSongList();
             DisplaySongList();
             UpdateStatusBarProgress();
-            songQueue.ImportSongList(songList);
-            MusicElement.Source = songQueue.GetCurrentSong();
-            MusicElement.Volume = 0.10;
+            MusicElement.Volume = 0.10;            
         }
 
 
@@ -52,10 +43,13 @@ namespace MusicPlayer
             foreach (Uri song in songList)
             {
                 string[] songString = song.OriginalString.Split("\\");
-                songStringList.Add(songString[songString.Length - 1].Substring(0, songString[songString.Length - 1].Length - 4));
+                songStringList.Add(songString[^1][0..^4]);
             }
 
             SongListDisplay.ItemsSource = songStringList;
+            songQueue.ImportSongList(songList);
+            MusicElement.Source = songQueue.GetCurrentSong();
+            HighLightCurrentSong();
         }
 
         private bool IsValidFileExtension(string file)
@@ -76,12 +70,6 @@ namespace MusicPlayer
                 MusicElement.Pause();
                 PlayButton.Content = "Play";
             }
-
-        }
-
-        private void PauseButton_Click(object sender, RoutedEventArgs e)
-        {
-            MusicElement.Pause();
         }
 
         private void PlayNextSong(object sender, RoutedEventArgs e)
@@ -105,6 +93,7 @@ namespace MusicPlayer
             MusicElement.Stop();
             MusicElement.Play();
             TimelineSlider.Value = 0;
+            PlayButton.Focus();
         }
 
         private void BackButton_MouseDoubleClick(object sender, MouseButtonEventArgs e)
@@ -125,9 +114,6 @@ namespace MusicPlayer
             }
 
             double seekTime = TimelineSlider.Value / 100 * MusicElement.NaturalDuration.TimeSpan.TotalMilliseconds;
-
-            // Overloaded constructor takes the arguments days, hours, minutes, seconds, milliseconds.
-            // Create a TimeSpan with miliseconds equal to the slider value.
             TimeSpan ts = new TimeSpan(0, 0, 0, 0, (int)seekTime);
             MusicElement.Position = ts;
         }
@@ -148,7 +134,7 @@ namespace MusicPlayer
             }
 
             songQueue.SetRepeatMode(mode);
-            
+            PlayButton.Focus();
         }
 
         private void SongListDisplay_MouseDoubleClick(object sender, MouseButtonEventArgs e)
@@ -161,7 +147,6 @@ namespace MusicPlayer
             } else
             {
                 songUri = new Uri(SONG_DIRECTORY + SongListDisplay.SelectedItem.ToString() + ".mp3");
-                
             }
 
             PlayNewSong(songQueue.PlaySpecificSong(songUri));
@@ -184,6 +169,29 @@ namespace MusicPlayer
             MusicElement.Source = songUri;
             MusicElement.Play();
             TimelineSlider.Value = 0;
+            HighLightCurrentSong();
+            PlayButton.Focus();
+        }
+
+        private void SpaceBarLetGo(object sender, KeyEventArgs e)
+        {
+            if(e.Key == Key.Space)
+            {
+                PlayButton_Click(sender, e);
+            }
+        }
+
+        private void ShuffleButton_Click(object sender, RoutedEventArgs e)
+        {
+            Random rng = new Random();
+            IOrderedEnumerable<Uri> randomizedSongList = songList.OrderBy(item => rng.Next());
+            songList = randomizedSongList.ToList();
+            DisplaySongList();
+            PlayButton.Focus();
+        }
+
+        private void HighLightCurrentSong()
+        {
             SongListDisplay.SelectedItem = SongListDisplay.Items.GetItemAt(songQueue.GetCurrentIndex());
             SongListDisplay.ScrollIntoView(SongListDisplay.Items.GetItemAt(songQueue.GetCurrentIndex()));
         }

@@ -1,9 +1,6 @@
 ﻿using MusicPlayer.Enums;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace MusicPlayer
 {
@@ -15,6 +12,8 @@ namespace MusicPlayer
 
         public void ImportSongList(List<Uri> copyList)
         {
+            songList.Clear();
+            currentIndex = 0;
             songList.AddRange(copyList);
         }
 
