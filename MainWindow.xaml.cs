@@ -91,7 +91,12 @@ namespace MusicPlayer
         private void BackButton_Click(object sender, RoutedEventArgs e)
         {
             MusicElement.Stop();
-            MusicElement.Play();
+
+            if ((string)PlayButton.Content == "Pause")
+            {
+                MusicElement.Play();
+            }
+                
             TimelineSlider.Value = 0;
             PlayButton.Focus();
         }
