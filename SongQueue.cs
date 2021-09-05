@@ -7,7 +7,7 @@ namespace MusicPlayer
     public class SongQueue
     {
         private int currentIndex = 0;
-        private List<Uri> songList = new();
+        private List<Uri> songList = new List<Uri>();
         private Repeat repeatMode = Repeat.Off;
 
         public void ImportSongList(List<Uri> copyList)

@@ -16,9 +16,9 @@ namespace MusicPlayer
     public partial class MainWindow : Window
     {
         private readonly SongQueue songQueue = new SongQueue();
-        private List<Uri> songList = new();
+        private List<Uri> songList = new List<Uri>();
         private readonly string[] validFileExtentions = { ".wav", ".mp3" };
-        private const string SONG_DIRECTORY = @"C:\Users\Tim Orlov\Desktop\2hu\Songs\List\";
+        private const string SONG_DIRECTORY = @"D:\Steam\steamapps\common\LobotomyCorp\OST";
         public MainWindow()
         {
             InitializeComponent();
@@ -39,7 +39,7 @@ namespace MusicPlayer
 
         private void DisplaySongList()
         {
-            List<string> songStringList = new();
+            List<string> songStringList = new List<string>();
             foreach (Uri song in songList)
             {
                 string[] songString = song.OriginalString.Split("\\");
