@@ -18,14 +18,14 @@ namespace MusicPlayer
         private readonly SongQueue songQueue = new SongQueue();
         private List<Uri> songList = new List<Uri>();
         private readonly string[] validFileExtentions = { ".wav", ".mp3" };
-        private const string SONG_DIRECTORY = @"D:\Steam\steamapps\common\LobotomyCorp\OST";
+        private const string SONG_DIRECTORY = @"C:\Program Files (x86)\Steam\steamapps\common\DeathRoadToCanada\data\music\";
         public MainWindow()
         {
             InitializeComponent();
             PopulateSongList();
             DisplaySongList();
             UpdateStatusBarProgress();
-            MusicElement.Volume = 0.10;            
+            MusicElement.Volume = 0.10;
         }
 
 
@@ -34,7 +34,7 @@ namespace MusicPlayer
             string[] files = Directory.GetFiles(SONG_DIRECTORY);
             songList.AddRange(files
                 .Where(file => IsValidFileExtension(file))
-                .Select(file => new Uri(file)));         
+                .Select(file => new Uri(file)));
         }
 
         private void DisplaySongList()
@@ -96,7 +96,7 @@ namespace MusicPlayer
             {
                 MusicElement.Play();
             }
-                
+
             TimelineSlider.Value = 0;
             PlayButton.Focus();
         }
@@ -146,10 +146,7 @@ namespace MusicPlayer
         {
             PlayButton.Content = "Pause";
             Uri songUri = new Uri(SONG_DIRECTORY + SongListDisplay.SelectedItem.ToString() + ".wav");
-            if (songList.Contains(songUri))
-            {
-
-            } else
+            if (!songList.Contains(songUri))
             {
                 songUri = new Uri(SONG_DIRECTORY + SongListDisplay.SelectedItem.ToString() + ".mp3");
             }
@@ -180,7 +177,7 @@ namespace MusicPlayer
 
         private void SpaceBarLetGo(object sender, KeyEventArgs e)
         {
-            if(e.Key == Key.Space)
+            if (e.Key == Key.Space)
             {
                 PlayButton_Click(sender, e);
             }
