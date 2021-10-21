@@ -18,16 +18,80 @@ namespace MusicPlayer
         private readonly SongQueue songQueue = new SongQueue();
         private List<Uri> songList = new List<Uri>();
         private readonly string[] validFileExtentions = { ".wav", ".mp3" };
-        private const string SONG_DIRECTORY = @"C:\Program Files (x86)\Steam\steamapps\common\DeathRoadToCanada\data\music\";
+        private string SONG_DIRECTORY = "";
+
+        private static readonly string APPDATA_PATH = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
+        private static readonly string CFGFOLDER_PATH = Path.Combine(APPDATA_PATH, "MusicPlayer");
+        private static readonly string CFGFILE_PATH = Path.Combine(CFGFOLDER_PATH, "config.txt");
+
         public MainWindow()
         {
             InitializeComponent();
+            LoadConfig();
             PopulateSongList();
             DisplaySongList();
             UpdateStatusBarProgress();
-            MusicElement.Volume = 0.10;
         }
 
+        private void LoadConfig()
+        {
+            if (!Directory.Exists(CFGFOLDER_PATH))
+            {
+                Directory.CreateDirectory(CFGFOLDER_PATH);
+            }
+
+            if (!File.Exists(CFGFILE_PATH))
+            {
+                CreateConfig();
+            }
+
+            ReadConfig();
+        }
+
+        private void ReadConfig()
+        {
+            StreamReader cfgReader = File.OpenText(CFGFILE_PATH);
+            Dictionary<string, string> settings = new Dictionary<string, string>();
+
+            for (int index = 0; !cfgReader.EndOfStream; index++)
+            {
+                string settingLine = cfgReader.ReadLine();
+
+                if (!string.IsNullOrWhiteSpace(settingLine))
+                {
+                    string[] splitSetting = settingLine.Split("=");
+                    settings.Add(splitSetting[0], splitSetting[1]);
+                }
+            }
+
+            if (settings.ContainsKey("SONG_DIRECTORY"))
+            {
+                SONG_DIRECTORY = settings["SONG_DIRECTORY"];
+            }
+
+            if (settings.ContainsKey("VOLUME"))
+            {
+                MusicElement.Volume = Convert.ToDouble(settings["VOLUME"]);
+                VolumeSlider.Value = MusicElement.Volume * 100;
+            }
+
+            cfgReader.Close();
+        }
+
+        private void CreateConfig()
+        {
+            StreamWriter cfgWriter = File.CreateText(CFGFILE_PATH);
+
+            string[] cfgDefaults = new string[] { "SONG_DIRECTORY=C:\\Games\\2hu\\Songs\\List\\",
+                                                    "VOLUME=0.1"};
+
+            foreach (string setting in cfgDefaults)
+            {
+                cfgWriter.WriteLine(setting);
+            }
+
+            cfgWriter.Close();
+        }
 
         private void PopulateSongList()
         {
@@ -78,6 +142,7 @@ namespace MusicPlayer
             if (nextSong == null)
             {
                 MusicElement.Stop();
+                PlayButton.Content = "Play";
             }
             else if (MusicElement.Source == nextSong)
             {
@@ -196,6 +261,27 @@ namespace MusicPlayer
         {
             SongListDisplay.SelectedItem = SongListDisplay.Items.GetItemAt(songQueue.GetCurrentIndex());
             SongListDisplay.ScrollIntoView(SongListDisplay.Items.GetItemAt(songQueue.GetCurrentIndex()));
+        }
+
+        private void Window_Closed(object sender, EventArgs e)
+        {
+            UpdateConfig();
+        }
+
+        private void UpdateConfig()
+        {
+            StreamWriter cfgUpdater = new StreamWriter(CFGFILE_PATH);
+            List<string> latestConfig = new List<string>();
+
+            latestConfig.Add("SONG_DIRECTORY=" + SONG_DIRECTORY);
+            latestConfig.Add("VOLUME=" + MusicElement.Volume);
+
+            foreach (string setting in latestConfig)
+            {
+                cfgUpdater.WriteLine(setting);
+            }
+
+            cfgUpdater.Close();
         }
     }
 }
