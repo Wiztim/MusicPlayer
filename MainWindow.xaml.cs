@@ -82,7 +82,7 @@ namespace MusicPlayer
         {
             StreamWriter cfgWriter = File.CreateText(CFGFILE_PATH);
 
-            string[] cfgDefaults = new string[] { "SONG_DIRECTORY=C:\\Games\\2hu\\Songs\\List\\",
+            string[] cfgDefaults = new string[] { @"SONG_DIRECTORY=C:\Windows\Media\",
                                                     "VOLUME=0.1"};
 
             foreach (string setting in cfgDefaults)
@@ -104,6 +104,14 @@ namespace MusicPlayer
         private void DisplaySongList()
         {
             List<string> songStringList = new List<string>();
+
+            if (!songList.Any())
+            {
+                songStringList.Add("Edit the config to have a folder with songs");
+                SongListDisplay.ItemsSource = songStringList;
+                return;
+            }
+
             foreach (Uri song in songList)
             {
                 string[] songString = song.OriginalString.Split("\\");
@@ -123,7 +131,12 @@ namespace MusicPlayer
 
         private void PlayButton_Click(object sender, RoutedEventArgs e)
         {
-            if ((string)PlayButton.Content == "Play")
+            if (!songList.Any())
+            {
+                return;
+            }
+
+                if ((string)PlayButton.Content == "Play")
             {
                 MusicElement.Play();
                 PlayButton.Content = "Pause";
@@ -138,6 +151,11 @@ namespace MusicPlayer
 
         private void PlayNextSong(object sender, RoutedEventArgs e)
         {
+            if (!songList.Any())
+            {
+                return;
+            }
+
             Uri nextSong = songQueue.GetNextSong();
             if (nextSong == null)
             {
@@ -155,6 +173,11 @@ namespace MusicPlayer
 
         private void BackButton_Click(object sender, RoutedEventArgs e)
         {
+            if (!songList.Any())
+            {
+                return;
+            }
+
             MusicElement.Stop();
 
             if ((string)PlayButton.Content == "Pause")
@@ -168,6 +191,11 @@ namespace MusicPlayer
 
         private void BackButton_MouseDoubleClick(object sender, MouseButtonEventArgs e)
         {
+            if (!songList.Any())
+            {
+                return;
+            }
+
             MusicElement.Source = songQueue.GetPreviousSong();
         }
 
@@ -191,7 +219,7 @@ namespace MusicPlayer
         private void RadioButton_Click(object sender, RoutedEventArgs e)
         {
             Repeat mode = Repeat.Off;
-            RadioButton radioButton = (sender as RadioButton);
+            RadioButton radioButton = sender as RadioButton;
             switch (radioButton.Content)
             {
                 case "Song":
@@ -209,6 +237,11 @@ namespace MusicPlayer
 
         private void SongListDisplay_MouseDoubleClick(object sender, MouseButtonEventArgs e)
         {
+            if (!songList.Any())
+            {
+                return;
+            }
+
             PlayButton.Content = "Pause";
             Uri songUri = new Uri(SONG_DIRECTORY + SongListDisplay.SelectedItem.ToString() + ".wav");
             if (!songList.Contains(songUri))
@@ -250,6 +283,11 @@ namespace MusicPlayer
 
         private void ShuffleButton_Click(object sender, RoutedEventArgs e)
         {
+            if (!songList.Any())
+            {
+                return;
+            }
+
             Random rng = new Random();
             IOrderedEnumerable<Uri> randomizedSongList = songList.OrderBy(item => rng.Next());
             songList = randomizedSongList.ToList();

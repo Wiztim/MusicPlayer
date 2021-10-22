@@ -23,21 +23,22 @@ namespace MusicPlayer
         }
 
         public Uri GetNextSong()
-        {             
+        {
             if (repeatMode == Repeat.Playlist && currentIndex == songList.Count - 1)
             {
                 currentIndex = 0;
             }
-            else if (repeatMode != Repeat.Song && currentIndex != songList.Count - 1)
+            else if (repeatMode != Repeat.Song)
             {
-                currentIndex++;
-            }
-            else if (currentIndex == songList.Count - 1)
-            {
-                return null;
+                if (currentIndex != songList.Count - 1) 
+                { 
+                    currentIndex++;
+                } else
+                {
+                    return null;
+                }
             }
 
-            
             return songList[currentIndex];
         }
 
