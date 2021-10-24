@@ -8,7 +8,7 @@
 * This project uses .NET Core 3.1
 
 ## Current Features
-* Current features are a .mp3 and .wav file support, play,skip, back, and shuffle button, a progress bar, a volume slider, loop options, and the list of songs in current play order.
+* Current features are a .mp3 and .wav file support, play,skip, back, and shuffle button, a progress bar, a volume slider, loop options, the list of songs in current play order, and a config file.
 
 ## Planned Features
-* Future features are a config file, more file support (.ogg), selecting folders from the app, saving playlists, and adding songs to a saved playlist.
+* Future features are ~~a config file,~~ more file support (.ogg), selecting folders from the app, saving playlists, and adding songs to a saved playlist.
