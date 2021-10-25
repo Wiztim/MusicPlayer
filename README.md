@@ -3,7 +3,7 @@
 * The program uses WPF to handle the app and C# is used to handle the logic.
 
 ## Building
-* The current version is intended to run on my machine, you would need to modify the folder it reads from.
+* The default selected music folder is the Alarms folder on Windows.
 * To specify a folder, edit the config file in AppData created after launching the player once.
 * This project uses .NET Core 3.1
 
