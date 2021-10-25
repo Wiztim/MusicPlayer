@@ -4,7 +4,7 @@
 
 ## Building
 * The current version is intended to run on my machine, you would need to modify the folder it reads from.
-* To specify a folder, edit line 21 in [MainWindow.xaml.cs](https://github.com/Wiztim/MusicPlayer/blob/main/MainWindow.xaml.cs#L21)
+* To specify a folder, edit the config file in AppData created after launching the player once.
 * This project uses .NET Core 3.1
 
 ## Current Features
