@@ -4,7 +4,7 @@
 
 ## Building
 * The default selected music folder is the Alarms folder on Windows.
-* To specify a folder, edit the config file in AppData created after launching the player once.
+* To specify a folder, edit the config file in AppData/Roaming/MusicPlayer created after launching the player once.
 * This project uses .NET Core 3.1
 
 ## Current Features
